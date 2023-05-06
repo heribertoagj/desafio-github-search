@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
@@ -19,7 +18,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.security.AccessController.getContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,15 +35,12 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         getAllReposByUserName()
     }
-
-    // Metodo responsavel por realizar o setup da view e recuperar os Ids do layout
     fun setupView() {
         editUserName = findViewById(R.id.et_user_name)
         btnConfirm = findViewById(R.id.btn_confirm)
         listRepositories = findViewById(R.id.rv_list_repositories)
     }
 
-    //metodo responsavel por configurar os listeners click da tela
     private fun setupListeners() {
         btnConfirm.setOnClickListener {
             val userNameInformed = editUserName.text.toString()
@@ -53,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             getAllReposByUserName()
         }
     }
-    // salvar o usuario preenchido no EditText utilizando uma SharedPreferences
+
     private fun saveUserLocal(userName: String) {
         val userNameShared = getPreferences(Context.MODE_PRIVATE)?: return
         with(userNameShared.edit()) {
@@ -63,7 +58,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showUserName() {
-        //@TODO 4- depois de persistir o usuario exibir sempre as informacoes no EditText  se a sharedpref possuir algum valor, exibir no proprio editText o valor salvo
         var userNameShared = getPreferences(Context.MODE_PRIVATE)
         var userNameInformed =  userNameShared.getString(getString(R.string.user_name_informed)," ")?:""
         editUserName.setText(userNameInformed)
@@ -71,13 +65,6 @@ class MainActivity : AppCompatActivity() {
 
     //Metodo responsavel por fazer a configuracao base do Retrofit
     fun setupRetrofit() {
-        /*
-           @TODO 5 -  realizar a Configuracao base do retrofit
-           Documentacao oficial do retrofit - https://square.github.io/retrofit/
-           URL_BASE da API do  GitHub= https://api.github.com/
-           lembre-se de utilizar o GsonConverterFactory mostrado no curso
-        */
-
         var httpClient = Retrofit.Builder()
             .baseUrl("https://api.github.com/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -86,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         githubApi = httpClient.create(GitHubService::class.java)
     }
 
-    //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
         githubApi.getAllRepositoriesByUser(editUserName.text.toString()).enqueue(
             object : Callback<List<Repository>> {
@@ -110,13 +96,9 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
-
         var adapter = RepositoryAdapter(list)
-
         listRepositories.adapter = adapter
-
         adapter.repoItemLister = { repo ->
             openBrowser(repo.htmlUrl)
         }
